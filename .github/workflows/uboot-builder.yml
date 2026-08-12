@@ -1,0 +1,155 @@
+name: 798x-UBOOT
+
+on:
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: '是否发布为预发布版本 (Pre-release)'
+        required: false
+        type: boolean
+        default: false
+      repo:
+        description: '选择源码进行编译'
+        required: false
+        type: string
+        default: 'https://github.com/Yuzhii0718/bl-mt798x-dhcpd'
+      branch:
+        description: '选择分支进行编译'
+        required: false
+        type: string
+        default: 'master'
+      dev:
+        description: '设备选择'
+        required: false
+        type: string
+        default: 'cudy_tr3000-v1'
+      option:
+        description: '选项配置'
+        required: false
+        type: string
+        default: 'VERSION=SP2 MULTI_LAYOUT=1'
+
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  WRT_REPO: ${{ github.event.inputs.repo }}
+  WRT_BRANCH: ${{ github.event.inputs.branch }}
+  PRERELEASE: ${{ github.event.inputs.prerelease }}
+  WRT_DEV: ${{ github.event.inputs.dev }}
+  WRT_OPTION: ${{ github.event.inputs.option }}
+permissions: write-all
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Projects
+        uses: actions/checkout@main
+
+      - name: ⚙️ Initialization Environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo -E apt -yqq purge firefox
+          sudo -E apt -yqq update
+          sudo -E apt -yqq full-upgrade
+          sudo -E apt -yqq autoremove --purge
+          sudo -E apt -yqq autoclean
+          sudo -E apt -yqq clean
+          sudo -E apt -yqq install dos2unix bison build-essential device-tree-compiler flex gcc-aarch64-linux-gnu libssl-dev qemu-user-static gcc-aarch64-linux-gnu build-essential flex bison libssl-dev device-tree-compiler qemu-user-static nodejs npm
+          sudo -E systemctl daemon-reload
+          sudo -E timedatectl set-timezone "Asia/Shanghai"
+
+          sudo mkdir -p /mnt/build_wrt
+          sudo chown $USER:$USER /mnt/build_wrt
+          sudo ln -s /mnt/build_wrt $GITHUB_WORKSPACE/wrt
+
+      - name: ⬇️ Clone Code
+        run: |
+          git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
+
+      - name: 🛠️ Compile Firmware
+        run: |
+          cp -f $GITHUB_WORKSPACE/config/*.dts ./wrt/uboot-mtk-20250711/arch/arm/dts
+          cp -f $GITHUB_WORKSPACE/config/*.dts ./wrt/uboot-mtk-20250711/arch/arm/dts/mediatek/openwrt
+          cp -f $GITHUB_WORKSPACE/config/*_defconfig ./wrt/uboot-mtk-20250711/configs
+          cd ./wrt/
+          [[ "$WRT_OPTION" =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]+([[:space:]]+[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]+)*$ ]] || { echo "Invalid option: $WRT_OPTION"; exit 1; }
+          SOC=mt7981 BOARD="${{ github.event.inputs.dev }}" ${{ github.event.inputs.option }} ./build.sh
+          
+      - name: 📦 Package Firmware
+        run: |
+          # 1. 确保目录存在
+          if [ ! -d "./wrt/output" ]; then
+            echo "Error: ./wrt/output directory not found!"
+            exit 1
+          fi
+          cd ./wrt/
+          mkdir -p ./upload/
+      
+          # 2. 设置日期变量
+          WRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d")
+          echo "WRT_DATE=$WRT_DATE" >> $GITHUB_ENV
+          echo "Current Date Tag: $WRT_DATE"
+
+          # 3. 使用 while read 循环处理文件名，支持空格
+          # find 使用 -print0 和 null 分隔符，read -d '' 读取 null 分隔符
+          find ./output/ -type f -iname "*.*" -print0 | while IFS= read -r -d '' FILE; do
+              BASENAME=$(basename "$FILE")
+              NAME="${BASENAME%.*}"
+              EXT="${BASENAME##*.}"
+              NEW_FILE="${NAME}_${WRT_DATE}.${EXT}"
+              
+              echo "Renaming: $BASENAME -> $NEW_FILE"
+              mv -f "$FILE" "./upload/$NEW_FILE"
+          done
+    
+          # 4. 检查是否移动了文件
+          FILE_COUNT=$(ls -1 ./upload/ 2>/dev/null | wc -l)
+          echo "Moved $FILE_COUNT files to ./upload/"
+        shell: /usr/bin/bash -e {0}
+      
+      - name: 📌 Generate release tag
+        id: tag
+        run: |
+          BUILD_TIME=$(date +"%Y%m%d-%H%M")
+          RELEASE_TAG="Uboot-${BUILD_TIME}"
+          echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+
+          # 生成 release 信息
+          cat > release.txt << EOF
+          ## 📦 Uboot Firmware Release
+
+          **🏷️ Release:** $RELEASE_TAG
+          **📦 Repo:** $WRT_REPO
+          **🌿 Branch:** $WRT_BRANCH
+          **📱 Device:** $WRT_DEV
+          **📱 Option:** $WRT_OPTION
+          **📅 Build Date:** $BUILD_TIME
+
+          ## 📥 Download
+
+          Download the firmware files from the assets below.
+
+          ---
+
+          Built with ❤️ using [GitHub Actions](https://github.com/features/actions)
+          EOF
+
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: 📤 Upload firmware to release
+        uses: softprops/action-gh-release@v2
+        if: steps.tag.outputs.status == 'success' && !cancelled()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          body_path: release.txt
+          prerelease: ${{ env.PRERELEASE == 'true' }}
+          files: ./wrt/upload/*.*
+
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          retain_days: 0
+          keep_minimum_runs: 5
