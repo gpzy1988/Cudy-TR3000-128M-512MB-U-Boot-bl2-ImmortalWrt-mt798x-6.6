@@ -6,7 +6,9 @@
 
 由gpzy1988修改与[weekdaycare](https://github.com/weekdaycare/immortalwrt-mt7981-cudy-tr3000)的代码，只增加了512MB的固件
 ---
-
+[欢迎来咸鱼找我改机]（https://p.goofish.com/p/57C6YNiu）【闲鱼】https://m.tb.cn/h.8SmJfdh?tk=mYmATZSluqD CZ028 「我在闲鱼发布了【多酷cudy tr3000刷机救砖扩容】」
+点击链接直接打开
+---
 ## ubootmod 固件
 
 本仓库默认编译的 ubootmod 固件为 112M 分区，若你想编译 122M 分区固件，请将 `diy-part2.sh` 中取消以下注释：
