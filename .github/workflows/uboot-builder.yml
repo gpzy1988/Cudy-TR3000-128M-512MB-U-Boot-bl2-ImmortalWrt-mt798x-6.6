@@ -72,8 +72,6 @@ jobs:
           cp -f $GITHUB_WORKSPACE/config/*.dts ./wrt/uboot-mtk-20250711/arch/arm/dts
           cp -f $GITHUB_WORKSPACE/config/*.dts ./wrt/uboot-mtk-20250711/arch/arm/dts/mediatek/openwrt
           cp -f $GITHUB_WORKSPACE/config/*_defconfig ./wrt/uboot-mtk-20250711/configs
-          cp -f $GITHUB_WORKSPACE/config/favicon.svg ./wrt/uboot-mtk-20250711/failsafe/embedded/fsdata
-          cp -f $GITHUB_WORKSPACE/config/favicon.svg.gz ./wrt/uboot-mtk-20250711/failsafe/embedded/fsdata/.min
           cd ./wrt/
           [[ "$WRT_OPTION" =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]+([[:space:]]+[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]+)*$ ]] || { echo "Invalid option: $WRT_OPTION"; exit 1; }
           SOC=mt7981 BOARD="${{ github.event.inputs.dev }}" ${{ github.event.inputs.option }} ./build.sh
