@@ -1,3 +1,5 @@
+[BL2、U-Boot、固件下载地址](https://github.com/gpzy1988/Cudy-TR3000-128M-512MB-U-Boot-bl2-ImmortalWrt-mt798x-6.6/releases)
+---
 <div align=center>
 <img src="document/pictures/tr3000.png"height=300px align="center">
 </div>
