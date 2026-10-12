@@ -1,36 +1,39 @@
 diff --git a/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/i18n.js b/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/i18n.js
-index 85bdd8e0..c133a127 100644
+index 85bdd8e0..367b1fd4 100644
 --- a/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/i18n.js
 +++ b/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/i18n.js
-@@ -309,6 +309,7 @@ const I18N = {
+@@ -309,6 +309,8 @@ const I18N = {
          "help.intro": "A modernized U-Boot failsafe Web UI for MediaTek MT798x devices. Built-in DHCP server, Telnet console, customizable themes and multilingual (EN / 中文 / RU) interface.",
          "help.author": "Author",
          "help.project": "Project",
 +        "help.modifier": "Modifier",
++        "help.projectUrl": "Project address",
          "ubi.title": "UBI VOLUME MANAGEMENT",
          "ubi.desc": "Manage UBI volumes on NAND flash. Attach MTD partitions, create/remove/rename volumes.",
          "ubi.device.title": "UBI Device",
-@@ -711,6 +712,7 @@ const I18N = {
+@@ -711,6 +713,8 @@ const I18N = {
          "help.intro": "面向 MediaTek MT798x 设备的现代化 U-Boot 失效保护 Web 界面。内置 DHCP 服务器、Telnet 控制台，支持自定义主题与多语言(EN / 中文 / RU)切换。",
          "help.author": "作者",
          "help.project": "项目",
 +        "help.modifier": "修改者",
++        "help.projectUrl": "项目地址",
          "ubi.title": "UBI 卷管理",
          "ubi.desc": "管理 NAND 闪存上的 UBI 卷。可挂载 MTD 分区、创建/删除/重命名卷。",
          "ubi.device.title": "UBI 设备",
-@@ -1113,6 +1115,7 @@ const I18N = {
+@@ -1113,6 +1117,8 @@ const I18N = {
          "help.intro": "Современный веб-интерфейс режима восстановления U-Boot для устройств MediaTek MT798x. Встроенный DHCP-сервер, Telnet-консоль, настраиваемые темы и многоязычный интерфейс (EN / 中文 / RU).",
          "help.author": "Автор",
          "help.project": "Проект",
 +        "help.modifier": "Модификатор",
++        "help.projectUrl": "Адрес проекта",
          "ubi.title": "УПРАВЛЕНИЕ ТОМАМИ UBI",
          "ubi.desc": "Управление томами UBI на флеш-памяти NAND. Подключение разделов MTD, создание/удаление/переименование томов.",
          "ubi.device.title": "Устройство UBI",
 diff --git a/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/main.js b/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/main.js
-index efd4cc24..f3c12e1a 100644
+index efd4cc24..01c25c3e 100644
 --- a/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/main.js
 +++ b/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/main.js
-@@ -853,6 +853,20 @@ function ensureHelpModal() {
+@@ -853,6 +853,34 @@ function ensureHelpModal() {
      projectDd.appendChild(projectLink);
      info.appendChild(projectDd);
  
@@ -47,6 +50,20 @@ index efd4cc24..f3c12e1a 100644
 +    modifierLink.textContent = "gpzy1988";
 +    modifierDd.appendChild(modifierLink);
 +    info.appendChild(modifierDd);
++
++    const projectUrlDt = document.createElement("dt");
++    projectUrlDt.setAttribute("data-i18n", "help.projectUrl");
++    projectUrlDt.textContent = t("help.projectUrl", "Project address");
++    info.appendChild(projectUrlDt);
++
++    const projectUrlDd = document.createElement("dd");
++    const projectUrlLink = document.createElement("a");
++    projectUrlLink.href = "https://github.com/gpzy1988/Cudy-TR3000-128M-512MB-U-Boot-bl2-ImmortalWrt-mt798x-6.6";
++    projectUrlLink.target = "_blank";
++    projectUrlLink.rel = "noopener";
++    projectUrlLink.textContent = "https://github.com/gpzy1988/Cudy-TR3000-128M-512MB-U-Boot-bl2-ImmortalWrt-mt798x-6.6";
++    projectUrlDd.appendChild(projectUrlLink);
++    info.appendChild(projectUrlDd);
 +
      body.appendChild(info);
      modal.appendChild(body);
