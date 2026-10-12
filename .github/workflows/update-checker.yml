@@ -10,7 +10,7 @@
 # See /LICENSE for more information.
 #
 
-name: 源码更新检查
+name: ImmortalWrt 源码更新检查
 
 env:
   REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-6.6
