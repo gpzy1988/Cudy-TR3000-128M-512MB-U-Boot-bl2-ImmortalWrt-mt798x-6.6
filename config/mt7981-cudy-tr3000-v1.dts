@@ -24,9 +24,9 @@
 
 	mtd-layout {
 		layout@0 {
-			label = "default";
+			label = "adaptive(-)";
 			mtdids = "nmbm0=nmbm0";
-			mtdparts = "nmbm0:1024k(bl2),512k(u-boot-env),2048k(Factory),256k(bdinfo),2048k(fip),65536k(ubi)";
+			mtdparts = "nmbm0:1024k(bl2),512k(u-boot-env),2048k(Factory),256k(bdinfo),2048k(fip),-(ubi)";
 		};
 
 		layout@1 {
@@ -78,9 +78,9 @@
 		};
 
 		layout@9 {
-			label = "adaptive(-)";
+			label = "default";
 			mtdids = "nmbm0=nmbm0";
-			mtdparts = "nmbm0:1024k(bl2),512k(u-boot-env),2048k(Factory),256k(bdinfo),2048k(fip),-(ubi)";
+			mtdparts = "nmbm0:1024k(bl2),512k(u-boot-env),2048k(Factory),256k(bdinfo),2048k(fip),65536k(ubi)";
 		};
         
 	};
