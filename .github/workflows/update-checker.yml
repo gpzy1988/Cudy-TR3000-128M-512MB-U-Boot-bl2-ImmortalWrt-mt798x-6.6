@@ -51,14 +51,6 @@ jobs:
           token: ${{ github.token }}
           event-type: Source Code Update
           client-payload: '{"device": "all", "repo": "https://github.com/padavanonly/immortalwrt-mt798x-6.6", "release": "true"}'
-
-
-      - name: Trigger U-Boot build
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ github.token }}
-          event-type: U-Boot Source Code Update
-          client-payload: '{"dev": "cudy_tr3000-v1", "repo": "https://github.com/Yuzhii0718/bl-mt798x-dhcpd", "branch": "master", "option": "VERSION=SP2 MULTI_LAYOUT=1"}'
           
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2
