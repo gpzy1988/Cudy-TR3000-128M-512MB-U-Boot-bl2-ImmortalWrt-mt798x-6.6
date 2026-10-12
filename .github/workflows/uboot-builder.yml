@@ -2,7 +2,7 @@ name: 798x U-Boot 固件编译
 
 on:
   repository_dispatch:
-    types: [ "Source Code Update" ]
+    types: [ "U-Boot Source Code Update" ]
   workflow_dispatch:
     inputs:
       prerelease:
