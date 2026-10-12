@@ -69,6 +69,11 @@ jobs:
         run: |
           git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
 
+      - name: 🩹 Patch failsafe About dialog
+        run: |
+          cd ./wrt/
+          patch -p1 < $GITHUB_WORKSPACE/failsafe-about-modifier.patch
+
       - name: 🛠️ Compile Firmware
         run: |
           cp -f $GITHUB_WORKSPACE/config/*.dts ./wrt/uboot-mtk-20250711/arch/arm/dts
