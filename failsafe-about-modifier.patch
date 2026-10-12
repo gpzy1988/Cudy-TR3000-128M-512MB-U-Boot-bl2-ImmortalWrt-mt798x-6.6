@@ -1,0 +1,53 @@
+diff --git a/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/i18n.js b/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/i18n.js
+index 85bdd8e0..c133a127 100644
+--- a/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/i18n.js
++++ b/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/i18n.js
+@@ -309,6 +309,7 @@ const I18N = {
+         "help.intro": "A modernized U-Boot failsafe Web UI for MediaTek MT798x devices. Built-in DHCP server, Telnet console, customizable themes and multilingual (EN / 中文 / RU) interface.",
+         "help.author": "Author",
+         "help.project": "Project",
++        "help.modifier": "Modifier",
+         "ubi.title": "UBI VOLUME MANAGEMENT",
+         "ubi.desc": "Manage UBI volumes on NAND flash. Attach MTD partitions, create/remove/rename volumes.",
+         "ubi.device.title": "UBI Device",
+@@ -711,6 +712,7 @@ const I18N = {
+         "help.intro": "面向 MediaTek MT798x 设备的现代化 U-Boot 失效保护 Web 界面。内置 DHCP 服务器、Telnet 控制台，支持自定义主题与多语言(EN / 中文 / RU)切换。",
+         "help.author": "作者",
+         "help.project": "项目",
++        "help.modifier": "修改者",
+         "ubi.title": "UBI 卷管理",
+         "ubi.desc": "管理 NAND 闪存上的 UBI 卷。可挂载 MTD 分区、创建/删除/重命名卷。",
+         "ubi.device.title": "UBI 设备",
+@@ -1113,6 +1115,7 @@ const I18N = {
+         "help.intro": "Современный веб-интерфейс режима восстановления U-Boot для устройств MediaTek MT798x. Встроенный DHCP-сервер, Telnet-консоль, настраиваемые темы и многоязычный интерфейс (EN / 中文 / RU).",
+         "help.author": "Автор",
+         "help.project": "Проект",
++        "help.modifier": "Модификатор",
+         "ubi.title": "УПРАВЛЕНИЕ ТОМАМИ UBI",
+         "ubi.desc": "Управление томами UBI на флеш-памяти NAND. Подключение разделов MTD, создание/удаление/переименование томов.",
+         "ubi.device.title": "Устройство UBI",
+diff --git a/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/main.js b/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/main.js
+index efd4cc24..f3c12e1a 100644
+--- a/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/main.js
++++ b/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/main.js
+@@ -853,6 +853,20 @@ function ensureHelpModal() {
+     projectDd.appendChild(projectLink);
+     info.appendChild(projectDd);
+ 
++    const modifierDt = document.createElement("dt");
++    modifierDt.setAttribute("data-i18n", "help.modifier");
++    modifierDt.textContent = t("help.modifier", "Modifier");
++    info.appendChild(modifierDt);
++
++    const modifierDd = document.createElement("dd");
++    const modifierLink = document.createElement("a");
++    modifierLink.href = "https://github.com/gpzy1988";
++    modifierLink.target = "_blank";
++    modifierLink.rel = "noopener";
++    modifierLink.textContent = "gpzy1988";
++    modifierDd.appendChild(modifierLink);
++    info.appendChild(modifierDd);
++
+     body.appendChild(info);
+     modal.appendChild(body);
+ 
