@@ -1,4 +1,4 @@
-name: 798x-UBOOT
+name: 798x U-Boot 固件编译
 
 on:
   repository_dispatch:
@@ -42,12 +42,13 @@ permissions: write-all
 
 jobs:
   build:
+    name: 🔨 编译固件
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Projects
+      - name: 🙌 检出代码
         uses: actions/checkout@main
 
-      - name: ⚙️ Initialization Environment
+      - name: ⚙️ 初始化环境
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
@@ -65,27 +66,27 @@ jobs:
           sudo chown $USER:$USER /mnt/build_wrt
           sudo ln -s /mnt/build_wrt $GITHUB_WORKSPACE/wrt
 
-      - name: ⬇️ Clone Code
+      - name: ⬇️ 克隆源码
         run: |
           git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
 
-      - name: 🩹 Patch failsafe About dialog
+      - name: 🩹 应用 failsafe 弹窗补丁
         run: |
           cd ./wrt/
           patch -p1 < $GITHUB_WORKSPACE/failsafe-about-modifier.patch
 
-      - name: 🛠️ Compile Firmware
+      - name: 🛠️ 编译固件
         run: |
           cp -f $GITHUB_WORKSPACE/config/*.dts ./wrt/uboot-mtk-20250711/arch/arm/dts
           cp -f $GITHUB_WORKSPACE/config/*.dts ./wrt/uboot-mtk-20250711/arch/arm/dts/mediatek/openwrt
           cp -f $GITHUB_WORKSPACE/config/*_defconfig ./wrt/uboot-mtk-20250711/configs
-          cp -f $GITHUB_WORKSPACE/config/*.svg ./wrt/uboot-mtk-20250711/failsafe/embedded/fsdata
           cp -f $GITHUB_WORKSPACE/config/favicon.svg ./wrt/uboot-mtk-20250711/failsafe/embedded/fsdata-bootstrap/favicon.svg
+          cp -f $GITHUB_WORKSPACE/config/*.svg ./wrt/uboot-mtk-20250711/failsafe/embedded/fsdata
           cd ./wrt/
           [[ "$WRT_OPTION" =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]+([[:space:]]+[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]+)*$ ]] || { echo "Invalid option: $WRT_OPTION"; exit 1; }
           SOC=mt7981 BOARD="${{ github.event.inputs.dev }}" ${{ github.event.inputs.option }} ./build.sh
           
-      - name: 📦 Package Firmware
+      - name: 📦 打包固件
         run: |
           # 1. 确保目录存在
           if [ ! -d "./wrt/output" ]; then
@@ -117,7 +118,7 @@ jobs:
           echo "Moved $FILE_COUNT files to ./upload/"
         shell: /usr/bin/bash -e {0}
       
-      - name: 📌 Generate release tag
+      - name: 📌 生成 Release 标签
         id: tag
         run: |
           BUILD_TIME=$(date +"%Y%m%d-%H%M")
@@ -126,27 +127,27 @@ jobs:
 
           # 生成 release 信息
           cat > release.txt << EOF
-          ## 📦 Uboot Firmware Release
+          ## 📦 Uboot 固件发布
 
-          **🏷️ Release:** $RELEASE_TAG
-          **📦 Repo:** $WRT_REPO
-          **🌿 Branch:** $WRT_BRANCH
-          **📱 Device:** $WRT_DEV
-          **📱 Option:** $WRT_OPTION
-          **📅 Build Date:** $BUILD_TIME
+          **🏷️ 版本:** $RELEASE_TAG
+          **📦 源码仓库:** $WRT_REPO
+          **🌿 分支:** $WRT_BRANCH
+          **📱 设备:** $WRT_DEV
+          **📱 选项:** $WRT_OPTION
+          **📅 构建日期:** $BUILD_TIME
 
-          ## 📥 Download
+          ## 📥 下载
 
-          Download the firmware files from the assets below.
+          请从下方附件中下载固件文件。
 
           ---
 
-          Built with ❤️ using [GitHub Actions](https://github.com/features/actions)
+          由 [GitHub Actions](https://github.com/features/actions) 构建
           EOF
 
           echo "status=success" >> $GITHUB_OUTPUT
 
-      - name: 📤 Upload firmware to release
+      - name: 📤 上传固件到 Release
         uses: softprops/action-gh-release@v2
         if: steps.tag.outputs.status == 'success' && !cancelled()
         env:
@@ -157,8 +158,9 @@ jobs:
           prerelease: ${{ env.PRERELEASE == 'true' }}
           files: ./wrt/upload/*.*
 
-      - name: Delete workflow runs
+      - name: 🚧 清理旧的 workflow 运行记录
         uses: Mattraks/delete-workflow-runs@v2
         with:
           retain_days: 0
           keep_minimum_runs: 5
+#（注：内容由AI生成）
