@@ -10,11 +10,7 @@
 # See /LICENSE for more information.
 #
 
-name: 源码更新检查
-
-permissions:
-  contents: write
-  actions: write
+name: Update Checker
 
 env:
   REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-6.6
@@ -27,29 +23,28 @@ on:
 
 jobs:
   check:
-    name: 🔍 检查更新
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🔍 获取最新 Commit
+      - name: Get Commit Hash
         id: getHash
         run: |
           git clone --depth 1 $REPO_URL -b $REPO_BRANCH .
           echo "commitHash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
-      - name: 🧬 对比 Commit 缓存
+      - name: Compare Commit Hash
         id: cacheHash
         uses: actions/cache@v3
         with:
           path: .commitHash
           key: commitHash_${{ steps.getHash.outputs.commitHash }}
 
-      - name: 💾 保存新 Commit
+      - name: Save New Commit Hash
         if: steps.cacheHash.outputs.cache-hit != 'true'
         run: |
           echo ${{ steps.getHash.outputs.commitHash }} | tee .commitHash
 
-      - name: 🚀 触发编译
+      - name: Trigger build
         if: steps.cacheHash.outputs.cache-hit != 'true'
         uses: peter-evans/repository-dispatch@v2
         with:
@@ -57,32 +52,15 @@ jobs:
           event-type: Source Code Update
           client-payload: '{"device": "all", "repo": "https://github.com/padavanonly/immortalwrt-mt798x-6.6", "release": "true"}'
 
-      - name: 🚀 触发 U-Boot 编译
-        if: steps.cacheHash.outputs.cache-hit != 'true'
+
+      - name: Trigger U-Boot build
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ github.token }}
           event-type: U-Boot Source Code Update
           client-payload: '{"dev": "cudy_tr3000-v1", "repo": "https://github.com/Yuzhii0718/bl-mt798x-dhcpd", "branch": "master", "option": "VERSION=SP2 MULTI_LAYOUT=1"}'
-
-      - name: 🧹 清理旧 Release
-        if: steps.cacheHash.outputs.cache-hit != 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # 1. 删除没有正确生成（无附件）的 release
-          gh release list --limit 100 --json tagName,assets --jq '.[] | select((.assets | length) == 0) | .tagName' | while read -r TAG; do
-            echo "Deleting incomplete release: $TAG"
-            gh release delete "$TAG" --yes --cleanup-tag
-          done
-
-          # 2. 保留最新 10 个 release（含 tag），删除更旧的
-          gh release list --limit 100 --json tagName --jq '.[].tagName' | tail -n +11 | while read -r TAG; do
-            echo "Deleting old release: $TAG"
-            gh release delete "$TAG" --yes --cleanup-tag
-          done
-
-      - name: 🚧 清理旧的 workflow 运行记录
+          
+      - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2
         with:
           retain_days: 0
